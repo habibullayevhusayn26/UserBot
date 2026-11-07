@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="uz">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light dark">
+    <title>Telegram Mini App</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+      :root { color-scheme: light dark; font-family: system-ui, sans-serif; }
+      body { margin: 0; padding: 24px; background: var(--tg-theme-bg-color, #fff); color: var(--tg-theme-text-color, #111); }
+      main { max-width: 480px; margin: 8vh auto; }
+      button { padding: 12px 16px; border: 0; border-radius: 10px; background: var(--tg-theme-button-color, #2481cc); color: var(--tg-theme-button-text-color, #fff); font: inherit; }
+      #status { min-height: 1.5em; color: var(--tg-theme-hint-color, #777); }
+      button:disabled { opacity: .6; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Mini App</h1>
+      <p id="status">Telegram orqali tasdiqlanmoqda…</p>
+      <section id="profile" hidden>
+        <p>Salom, <strong id="name"></strong>!</p>
+        <p id="username"></p>
+        <button id="send-test" type="button">Botdan o‘zimga sinov xabari yuborish</button>
+      </section>
+    </main>
+    <script src="/app.js" defer></script>
+  </body>
+</html>
