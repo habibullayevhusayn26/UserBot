@@ -1,15 +1,11 @@
 {
-  "name": "telegram-mini-app-bot",
+  "name": "media-downloader-bot",
   "version": "1.0.0",
-  "private": true,
-  "description": "Telegram Mini App authentication with the official Bot API",
-  "type": "module",
+  "main": "bot.js",
   "scripts": {
-    "start": "node server.js",
-    "bot": "node bot.js",
-    "test": "node --test"
+    "start": "node --env-file=.env bot.js"
   },
-  "engines": {
-    "node": ">=20"
+  "dependencies": {
+    "grammy": "^1.30.0"
   }
 }
