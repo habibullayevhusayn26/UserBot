@@ -7,7 +7,7 @@ import { createTelegramBot } from "./bot.js";
 
 const botToken = process.env.BOT_TOKEN;
 const port = Number(process.env.PORT ?? 3000);
-const host = process.env.HOST ?? "127.0.0.1";
+const host = process.env.HOST ?? "0.0.0.0";
 const sendCooldownMs = 60_000;
 const lastSendAt = new Map();
 const publicDir = fileURLToPath(new URL("./public/", import.meta.url));

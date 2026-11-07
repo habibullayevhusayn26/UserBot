@@ -1,11 +1,47 @@
 import { pathToFileURL } from "node:url";
 
-export function createTelegramBot(botToken, miniAppUrl) {
+const defaultBusinessAutoReplyText = "Salom! Xabaringiz uchun rahmat. Tez orada siz bilan bog‘lanamiz.";
+
+export async function handleBusinessMessage(message, telegramApi, autoReplyText) {
+  const businessConnectionId = message?.business_connection_id;
+  if (!businessConnectionId || !message.chat?.id) return;
+
+  const connection = await telegramApi("getBusinessConnection", {
+    business_connection_id: businessConnectionId
+  });
+  if (
+    connection.is_enabled !== true ||
+    connection.can_reply !== true ||
+    connection.user?.id === message.from?.id ||
+    message.sender_business_bot
+  ) {
+    return;
+  }
+
+  const payload = {
+    business_connection_id: businessConnectionId,
+    chat_id: message.chat.id,
+    text: autoReplyText
+  };
+  if (Number.isInteger(message.message_id)) {
+    payload.reply_parameters = { message_id: message.message_id };
+  }
+  await telegramApi("sendMessage", payload);
+}
+
+export function createTelegramBot(
+  botToken,
+  miniAppUrl,
+  autoReplyText = process.env.BUSINESS_AUTO_REPLY_TEXT ?? defaultBusinessAutoReplyText
+) {
   if (!botToken) {
     throw new Error("BOT_TOKEN environment variable is required.");
   }
   if (!miniAppUrl || new URL(miniAppUrl).protocol !== "https:") {
     throw new Error("MINI_APP_URL must be an HTTPS URL.");
+  }
+  if (!autoReplyText.trim()) {
+    throw new Error("BUSINESS_AUTO_REPLY_TEXT must not be empty.");
   }
 
   async function telegramApi(method, payload) {
@@ -32,10 +68,22 @@ export function createTelegramBot(botToken, miniAppUrl) {
         const updates = await telegramApi("getUpdates", {
           offset,
           timeout: 25,
-          allowed_updates: ["message"]
+          allowed_updates: ["message", "business_connection", "business_message"]
         });
         for (const update of updates) {
           offset = update.update_id + 1;
+          if (update.business_connection) {
+            console.log(`Business connection ${update.business_connection.is_enabled ? "enabled" : "disabled"}.`);
+          }
+          if (update.business_message) {
+            try {
+              await handleBusinessMessage(update.business_message, telegramApi, autoReplyText);
+            } catch (error) {
+              console.error("Business auto-reply error:", error.message);
+            }
+            continue;
+          }
+
           const message = update.message;
           if (message?.chat?.type !== "private" || !message.text || !/^\/start(?:@\w+)?(?:\s|$)/.test(message.text)) {
             continue;
